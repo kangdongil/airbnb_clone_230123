@@ -1,0 +1,28 @@
+image: gitpod/workspace-python-3.10
+
+tasks:
+  - name: "runserver"
+    init: gp sync-await prebuild
+    command: poetry run python manage.py runserver
+  - name: "console"
+    init: |
+      pip install black
+      poetry update
+      poetry run python manage.py migrate
+      clear && echo "Create Admin Account:"
+      poetry run python manage.py createsuperuser
+    command: |
+      gp sync-done prebuild
+      clear && gp ports await 8000
+      gp preview $(gp url 8000) --external
+
+ports:
+  - port: 8000
+    visibility: public
+    onOpen: notify
+
+vscode:
+  extensions:
+    - ms-python.python
+    - esbenp.prettier-vscode
+    - batisteo.vscode-django
